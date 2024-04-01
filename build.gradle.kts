@@ -10,6 +10,7 @@ plugins {
 group = "de.miraculixx"
 version = "1.0.0"
 val githubRepo = "Miraculixx/MCCommons"
+val id = "mc-commons"
 
 repositories {
     mavenCentral()
@@ -17,7 +18,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
     val adventureVersion = "4.13.1"
     implementation("net.kyori:adventure-api:$adventureVersion")
@@ -31,6 +32,8 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks {
@@ -57,16 +60,16 @@ publishing {
     }
 
     publications {
-        register<MavenPublication>(project.name) {
+        register<MavenPublication>(id) {
             from(components["java"])
             artifact(tasks.jar.get().outputs.files.single())
 
             this.groupId = project.group.toString()
-            this.artifactId = project.name.lowercase()
+            this.artifactId = id
             this.version = project.version.toString()
 
             pom {
-                name.set(project.name)
+                name.set(id)
                 description.set(project.description)
 
                 developers {
