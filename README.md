@@ -10,3 +10,9 @@ Some features are known from **KPaper** (Fork from KSpigot) but separated to use
 - ``Useful Extensions`` - Like collections, enums, files and numbers.
 - ``Common Global Attributes`` - Set and receive common attributes across your multiplatform project.
 
+### Implementation
+```kotlin
+dependencies {
+    implementation("de.miraculixx:mc-commons:1.0.0")
+}
+```

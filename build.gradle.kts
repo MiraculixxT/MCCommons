@@ -62,7 +62,7 @@ publishing {
     publications {
         register<MavenPublication>(id) {
             from(components["java"])
-            artifact(tasks.jar.get().outputs.files.single())
+//            artifact(tasks.jar.get().outputs.files.single())
 
             this.groupId = project.group.toString()
             this.artifactId = id
@@ -70,7 +70,7 @@ publishing {
 
             pom {
                 name.set(id)
-                description.set(project.description)
+                description.set("Common utilities for Minecraft plugins")
 
                 developers {
                     developer {
