@@ -25,3 +25,13 @@ inline fun <reified T : Any> File.saveConfig(config: T) {
     if (!exists() && parentFile != null) parentFile.mkdirs()
     writeText(jsonPretty.encodeToString(config))
 }
+
+fun File.createIfNotExists(): Boolean {
+    return if (!exists()) {
+        if (!parentFile.exists())
+            parentFile.mkdirs()
+        if (isDirectory)
+            mkdir()
+        else createNewFile()
+    } else true
+}
