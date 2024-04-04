@@ -46,8 +46,19 @@ fun cmp(text: String, color: TextColor = cBase, bold: Boolean = false, italic: B
 fun cmp(text: String, colorTag: String, bold: Boolean = false, italic: Boolean = false, strikethrough: Boolean = false, underlined: Boolean = false) =
     miniMessage.deserialize(colorTag + text).decorations(getDecorationMap(bold, italic, strikethrough, underlined))
 
+/**
+ * Create a component out of a translatable key.
+ * This will render on the client side.
+ */
 fun cmpTranslatableVanilla(key: String, color: TextColor, bold: Boolean = false, italic: Boolean = false, strikethrough: Boolean = false, underlined: Boolean = false) =
     Component.translatable(key).color(color).decorations(getDecorationMap(bold, italic, strikethrough, underlined))
+
+/**
+ * Create a component out of a translatable key.
+ * This will render on the client side.
+ */
+fun cmpTranslatableVanilla(key: String, color: String, bold: Boolean = false, italic: Boolean = false, strikethrough: Boolean = false, underlined: Boolean = false) =
+    miniMessage.deserialize("$color<lang:$key>").decorations(getDecorationMap(bold, italic, strikethrough, underlined))
 
 private fun getDecorationMap(bold: Boolean, italic: Boolean, strikethrough: Boolean, underlined: Boolean): Map<TextDecoration, TextDecoration.State> = mapOf(
     TextDecoration.BOLD to TextDecoration.State.byBoolean(bold),

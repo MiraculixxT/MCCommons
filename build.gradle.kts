@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "de.miraculixx"
-version = "1.0.0"
+version = "1.0.1"
 val githubRepo = "Miraculixx/MCCommons"
 val id = "mc-commons"
 

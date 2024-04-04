@@ -8,22 +8,26 @@ import java.io.File
 import java.io.InputStream
 import java.util.*
 
-private var localization: MutableMap<String, YAMLSerializer> = mutableMapOf()
-private var defaultLocale = "en_US"
+private var localization: MutableMap<Locale, YAMLSerializer> = mutableMapOf()
+var defaultLocale: Locale = Locale.ENGLISH
 
 /**
  * Get a translation for the given key. If no translation is found, the key will be returned in red. All inputs will be deserialized with miniMessages
  * @param key Localization Key
  * @param input Input variables. <input-i>
  */
-fun msg(key: String, input: List<String> = emptyList(), locale: String = defaultLocale) = miniMessage.deserialize("<!i>" + (localization[locale]?.get<String>(key)?.replaceInput(input) ?: "<red>$key"))
+fun msg(key: String, input: List<String> = emptyList(), locale: Locale = defaultLocale) = locale.msg(key, input)
+
+fun Locale.msg(key: String, input: List<String> = emptyList()) = miniMessage.deserialize("<!i>" + (localization[this]?.get<String>(key)?.replaceInput(input) ?: "<red>$key"))
 
 /**
  * Get a translation for the given key. If no translation is found, the key will be returned instead.
  * @param key Localization Key
  * @param input Input variables. <input-i>
  */
-fun msgString(key: String, input: List<String> = emptyList(), locale: String = defaultLocale) = localization[locale]?.get<String>(key)?.replaceInput(input) ?: key
+fun msgString(key: String, input: List<String> = emptyList(), locale: Locale = defaultLocale) = locale.msgString(key, input)
+
+fun Locale.msgString(key: String, input: List<String> = emptyList()) = localization[this]?.get<String>(key)?.replaceInput(input) ?: key
 
 /**
  * Get a translation for the given key. If no translation is found, the key will be returned in red.
@@ -31,20 +35,11 @@ fun msgString(key: String, input: List<String> = emptyList(), locale: String = d
  * @param input Input variables. <input-i>
  * @param inline Inline string before every line (useful for listing)
  */
-fun msgList(key: String, input: List<String> = emptyList(), inline: String = "<grey>   ", locale: String = defaultLocale) = msgString(key, input, locale).split("<br>").map {
+fun msgList(key: String, input: List<String> = emptyList(), inline: String = "<grey>   ", locale: Locale = defaultLocale) = locale.msgList(key, input, inline)
+
+fun Locale.msgList(key: String, input: List<String> = emptyList(), inline: String = "<grey>   ") = msgString(key, input, this).split("<br>").map {
     miniMessage.deserialize("$inline<!i>$it")
 }.ifEmpty { listOf(cmp(inline + key, cError)) }
-
-/**
- * Get the current used local if the proper syntax (e.g., en_US) is used.
- */
-fun getLocal(): Locale {
-    return try {
-        Locale.forLanguageTag(defaultLocale) ?: Locale.ENGLISH
-    } catch (_: Exception) {
-        Locale.ENGLISH
-    }
-}
 
 private fun String.replaceInput(input: List<String>): String {
     var msg = this
@@ -60,13 +55,13 @@ private fun String.replaceInput(input: List<String>): String {
  * @see msg
  * @see msgList
  */
-class Localization(private val folder: File, active: String, keys: List<Pair<String, InputStream?>>) {
-    private val languages: MutableList<String> = mutableListOf()
+class Localization(private val folder: File, active: Locale, keys: List<Pair<Locale, InputStream?>>) {
+    private val languages: MutableList<Locale> = mutableListOf()
 
     /**
      * All currently loaded language keys. Does not include custom language files that are added in runtime
      */
-    fun getLoadedKeys(): List<String> {
+    fun getLoadedKeys(): List<Locale> {
         return languages
     }
 
@@ -75,10 +70,10 @@ class Localization(private val folder: File, active: String, keys: List<Pair<Str
      * @param key The new language key
      * @return false if the entered language key cannot be found or point to an invalid config
      */
-    fun setLanguage(key: String): Boolean {
-        return if (localization[key] != null || checkFile(key)) {
+    fun setLanguage(key: Locale): Boolean {
+        return if (localization[key] != null || checkFile(key.toString())) {
             defaultLocale = key
-            consoleAudience.sendMessage(prefix + cmp("Changed default language to ") + cmp(key, cHighlight))
+            consoleAudience.sendMessage(prefix + cmp("Changed default language to ") + cmp(key.toString(), cHighlight))
             true
         } else false
     }
@@ -91,7 +86,8 @@ class Localization(private val folder: File, active: String, keys: List<Pair<Str
         folder.listFiles()?.forEach {
             val key = it.nameWithoutExtension
             if (checkFile(key)) {
-                languages.add(key)
+                val locale = Locale.forLanguageTag(key)
+                languages.add(locale)
                 consoleAudience.sendMessage(prefix + cmp("Loaded language ") + cmp(key, cHighlight))
             }
         }
@@ -108,7 +104,7 @@ class Localization(private val folder: File, active: String, keys: List<Pair<Str
             consoleAudience.sendMessage(prefix + cmp("LANG - $key file is not a valid language config"))
             return false
         }
-        localization[key] = config
+        localization[Locale.forLanguageTag(key)] = config
         return true
     }
 

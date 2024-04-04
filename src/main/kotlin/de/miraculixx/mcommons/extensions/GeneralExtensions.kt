@@ -2,6 +2,7 @@
 
 package de.miraculixx.mcommons.extensions
 
+import de.miraculixx.mcommons.text.msgString
 import java.util.*
 
 fun String.toUUID(): UUID? {
@@ -11,3 +12,5 @@ fun String.toUUID(): UUID? {
         null
     }
 }
+
+fun Boolean.msg(locale: Locale) = locale.msgString("common.${if (this) "boolTrue" else "boolFalse"}")
